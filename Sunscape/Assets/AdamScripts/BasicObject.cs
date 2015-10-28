@@ -9,7 +9,8 @@ public class BasicObject : MonoBehaviour
     public Rigidbody myRigidbody;
     public int InStasis;
     bool startingGravityUsage;
-
+    public float maxIntegrity = 0;
+    public float integrity;
     // Use this for initialization
 
     bool stasisSwitchedGravity;
@@ -20,6 +21,11 @@ public class BasicObject : MonoBehaviour
         myLight = GetComponent<Light>();
         myRigidbody = GetComponent<Rigidbody>();
         startingGravityUsage = myRigidbody.useGravity;
+
+        if (maxIntegrity == 0)
+            maxIntegrity = myRigidbody.mass;
+        integrity = maxIntegrity;
+
     }
 
     // Update is called once per frame

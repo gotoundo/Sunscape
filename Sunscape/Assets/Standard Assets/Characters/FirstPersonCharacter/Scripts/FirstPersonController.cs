@@ -126,7 +126,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
             else
             {
-                m_MoveDir += Physics.gravity*m_GravityMultiplier*Time.fixedDeltaTime;
+                m_MoveDir += GetComponent<Rigidbody>().useGravity? Physics.gravity*m_GravityMultiplier*Time.fixedDeltaTime: Vector3.zero;
             }
             m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime);
 

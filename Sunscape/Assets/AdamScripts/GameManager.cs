@@ -46,5 +46,11 @@ public class GameManager : MonoBehaviour {
             terrainModification.RevertChanges();
     }
 
+    void OnTriggerExit(Collider col)
+    {
+        Destroy(col.gameObject);
+    }
+
+
 
 }
