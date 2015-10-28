@@ -16,6 +16,8 @@ public class AdamPlayer : MonoBehaviour {
     float massPullRange = 20f;
     float massPushRange = 20f;
     float letGoRange = 5f;
+
+    public float Speed;
    
 
 

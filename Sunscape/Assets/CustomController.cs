@@ -4,6 +4,7 @@ using System.Collections;
 public class CustomController : MonoBehaviour {
 
     Rigidbody myBody;
+    public float speed = 1;
 	// Use this for initialization
 	void Start () {
         myBody = GetComponent<Rigidbody>();
@@ -17,10 +18,10 @@ public class CustomController : MonoBehaviour {
             transform.Rotate(0, 60 * Time.deltaTime, 0);
 
         if (Input.GetKey(KeyCode.W))
-            transform.position += 10*transform.forward*Time.deltaTime;
+            transform.position += 10*transform.forward*Time.deltaTime* speed;
 
         if (Input.GetKey(KeyCode.S))
-            transform.position -= 10 * transform.forward * Time.deltaTime;
+            transform.position -= 10 * transform.forward * Time.deltaTime* speed;
 
         if (Input.GetKey(KeyCode.Space))
             myBody.AddForce(0, 50, 0);

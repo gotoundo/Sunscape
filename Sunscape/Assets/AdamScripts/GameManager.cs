@@ -9,8 +9,11 @@ public class GameManager : MonoBehaviour {
     public Terrain MainTerrain;
     public TerrainModification terrainModification;
 
+    public Vector3 Gravity = new Vector3(0, -9.81f, 0);
+    public float playerSpeedModifier = 1;
+
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         Main = this;
         Cursor.visible = false;
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -22,6 +25,7 @@ public class GameManager : MonoBehaviour {
             MainTerrain = TerrainObject.GetComponent<Terrain>();
             terrainModification = TerrainObject.GetComponent<TerrainModification>();
         }
+        Physics.gravity = Gravity;
     }
 	
 	// Update is called once per frame
