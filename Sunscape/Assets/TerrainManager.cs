@@ -334,12 +334,23 @@ public class TerrainManager : MonoBehaviour {
 
         for (int i = 0; i < TERRAIN_BUFFER_COUNT; i++)
         {
+
+            terrainBuffer[i] = Instantiate(referenceTerrain);
+            /*
             TerrainData tData = new TerrainData();
             CopyTerrainDataFromTo(referenceTerrain.terrainData, ref tData);
+
+
             terrainBuffer[i] = Terrain.CreateTerrainGameObject(tData).GetComponent<Terrain>();
-            terrainBuffer[i].treeMaximumFullLODCount = 200;
-            terrainBuffer[i].treeCrossFadeLength= 500;
+            terrainBuffer[i].castShadows = false;
+            terrainBuffer[i].treeMaximumFullLODCount = 2000;
+            terrainBuffer[i].treeCrossFadeLength= 2000;
+            terrainBuffer[i].treeDistance = 2000;
+            terrainBuffer[i].basemapDistance = 1000;
+            terrainBuffer[i].drawHeightmap = true;*/
             terrainBuffer[i].gameObject.SetActive(false);
+            
+            
         }
     }
 
@@ -465,6 +476,10 @@ public class TerrainManager : MonoBehaviour {
         tDataTo.splatPrototypes = tDataFrom.splatPrototypes;
         tDataTo.treePrototypes = tDataFrom.treePrototypes;
         tDataTo.treeInstances = tDataFrom.treeInstances;
+
+        tDataTo.SetHeights(0,0,tDataFrom.GetHeights(0, 0, tDataFrom.heightmapWidth, tDataFrom.heightmapHeight));
+        
+        
        // tDataTo
     }
 }

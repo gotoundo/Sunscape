@@ -101,7 +101,7 @@ public class LabyrinthGenerator : UIBase
 
                     if (!wallsTooClose)
                     {
-                        SetObjectToMazePosition(mazeObject, zLocCandidate, 2, xLocCandidate);  //WHY DOES THIS HAVE TO BE REVERSED?? WHO KNOWS???
+                        SetObjectToMazePosition(mazeObject, zLocCandidate, 303, xLocCandidate);  //WHY DOES THIS HAVE TO BE REVERSED?? WHO KNOWS???
                         locationFound = true;
                     }
                 }
