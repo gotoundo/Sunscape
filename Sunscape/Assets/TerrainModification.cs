@@ -49,7 +49,7 @@ public class TerrainModification : MonoBehaviour
             {
                 for (int x = 0; x < heightmapWidth; x++)
                 {
-                    heights[x, z] += Time.deltaTime * (Mathf.Cos((x + TotalTime) / 10) - Mathf.Sin((z + TotalTime) / 10)) / 150;
+                    heights[x, z] += Time.deltaTime * (Mathf.Cos((x + TotalTime) / 10) - Mathf.Sin((z + TotalTime) / 10)) / 500;
 
                 }
             }
@@ -144,7 +144,7 @@ public class TerrainModification : MonoBehaviour
         int heightmapHeight = terrainData.heightmapHeight;
         float[,] adjustedHeights = terrainData.GetHeights(0, 0, heightmapWidth, heightmapHeight);
         for (int i = 0; i < newHeights.GetLength(0); i++)
-            for (int j = 0; j < newHeights.GetLength(0); j++)
+            for (int j = 0; j < newHeights.GetLength(1); j++)
                 adjustedHeights[i, j] += newHeights[i, j];
 
         terrainData.SetHeights(0,0,adjustedHeights);

@@ -21,7 +21,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             [HideInInspector] public float CurrentTargetSpeed = 8f;
 
 #if !MOBILE_INPUT
-            private bool m_Running;
+            public bool m_Running; //wasprivate
 #endif
 
             public void UpdateDesiredTargetSpeed(Vector2 input)
@@ -81,11 +81,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
         public AdvancedSettings advancedSettings = new AdvancedSettings();
 
 
-        private Rigidbody m_RigidBody;
-        private CapsuleCollider m_Capsule;
-        private float m_YRotation;
-        private Vector3 m_GroundContactNormal;
-        private bool m_Jump, m_PreviouslyGrounded, m_Jumping, m_IsGrounded;
+        public Rigidbody m_RigidBody;
+        public CapsuleCollider m_Capsule;
+        public float m_YRotation;
+        public Vector3 m_GroundContactNormal;
+        public bool m_Jump, m_PreviouslyGrounded, m_Jumping, m_IsGrounded;
 
 
         public Vector3 Velocity
@@ -162,6 +162,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
                 if (m_Jump)
                 {
+                    Debug.Log("Jumping!");
                     m_RigidBody.drag = 0f;
                     m_RigidBody.velocity = new Vector3(m_RigidBody.velocity.x, 0f, m_RigidBody.velocity.z);
                     m_RigidBody.AddForce(new Vector3(0f, movementSettings.JumpForce, 0f), ForceMode.Impulse);

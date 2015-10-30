@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.Characters.FirstPerson;
 
 public class AdamPlayer : MonoBehaviour {
 
@@ -18,12 +19,23 @@ public class AdamPlayer : MonoBehaviour {
     float letGoRange = 5f;
 
     public float Speed;
-   
 
+    //FirstPersonController fpController;
+    int layerMask = -1;
 
     void Awake()
     {
         Instantiate(Reticule);
+        // Bit shift the index of the layer (8) to get a bit mask
+        layerMask = 1 << 10;
+        layerMask = ~layerMask;
+        // This would cast rays only against colliders in layer 8, so we just inverse the mask.
+
+
+
+        //  fpController = GetComponent<FirstPersonController>();
+
+        //fpController.
     }
     // Update is called once per frame
     void Update()
@@ -84,7 +96,7 @@ public class AdamPlayer : MonoBehaviour {
             {
                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5F, 0.5F, 0));
                 RaycastHit hit;
-                if (Physics.Raycast(ray, out hit, 10))
+                if (Physics.Raycast(ray, out hit, singlePushRange,layerMask))
                 {
                     Rigidbody rigidb = hit.collider.GetComponent<Rigidbody>();
                     if(rigidb!=null)
@@ -93,7 +105,7 @@ public class AdamPlayer : MonoBehaviour {
             }
             else
             {
-                Collider[] hitColliders = Physics.OverlapSphere(transform.position, 20f);
+                Collider[] hitColliders = Physics.OverlapSphere(transform.position, massPushRange, layerMask);
                 foreach (Collider c in hitColliders)
                 {
                     Rigidbody temp = c.gameObject.GetComponent<Rigidbody>();
@@ -115,7 +127,7 @@ public class AdamPlayer : MonoBehaviour {
                 RaycastHit hit;
                 bool usedForcePull = false;
 
-                if (Physics.Raycast(ray, out hit, singlePullRange))
+                if (Physics.Raycast(ray, out hit, singlePullRange, layerMask))
                 {
                     Rigidbody rigidb = hit.collider.GetComponent<Rigidbody>();
                     if (rigidb != null && hit.distance > grabRange)
@@ -130,7 +142,7 @@ public class AdamPlayer : MonoBehaviour {
 
             else //Mass Force Pull
             {
-                Collider[] hitColliders = Physics.OverlapSphere(transform.position, massPullRange);
+                Collider[] hitColliders = Physics.OverlapSphere(transform.position, massPullRange, layerMask);
                 foreach (Collider c in hitColliders)
                 {
                     Rigidbody temp = c.gameObject.GetComponent<Rigidbody>();
@@ -257,8 +269,6 @@ public class AdamPlayer : MonoBehaviour {
             {
                 Rigidbody targetRigidbody = grabableObject.myRigidbody;
                 heldObject = targetRigidbody.gameObject;
-                //targetRigidbody.velocity = Vector3.zero;
-                //targetRigidbody.angularVelocity = Vector3.zero;
                 targetRigidbody.transform.SetParent(Facing.transform);
                 grabableObject.InStasis++;
             }

@@ -3,6 +3,7 @@ using System.Collections;
 
 public class GGDroneScript : MonoBehaviour {
 
+    
 
     LineRenderer lineRender;
     GameObject targetObject;
@@ -11,6 +12,7 @@ public class GGDroneScript : MonoBehaviour {
     float laserRange = 10;
     float stopRange = 6;
     float giveUpRange = 50f;
+    string banishmentLocation = "World-Labyrinth";
 
 	void Start () {
         lineRender = GetComponent<LineRenderer>();
@@ -49,7 +51,12 @@ public class GGDroneScript : MonoBehaviour {
             BasicObject enemyBody = targetObject.GetComponent<BasicObject>();
             enemyBody.integrity -= Time.deltaTime;
             if (enemyBody.integrity <= 0.1f)
-                Destroy(enemyBody.gameObject);
+            {
+                if (enemyBody.gameObject == GameManager.Main.Player)
+                    GameManager.Main.LoadLevel(banishmentLocation);
+                else
+                    Destroy(enemyBody.gameObject);
+            }
         }
         else
             lineRender.enabled = false;

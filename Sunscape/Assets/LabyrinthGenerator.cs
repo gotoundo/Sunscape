@@ -8,22 +8,26 @@ using ProceduralToolkit.Examples.UI;
 
 public class LabyrinthGenerator : UIBase
 {
+    public GameObject[] MazeOccupants;
+
     public RectTransform leftPanel;
     public ToggleGroup algorithmsGroup;
     public RawImage mazeImage;
 
     private Texture2D texture;
-    private int textureWidth = 256;
-    private int textureHeight = 256;
+    private int mapWidth;
+    private int mapHeight;
+    public int cellSize = 5;
+    public int wallSize = 5;
+    public float wallHeight = 0.01f;
+    public float floorHeight = 0f;
+    float[,] heights;
+
     private bool useRainbowGradient = true;
     private MazeGenerator mazeGenerator;
-    private MazeGenerator.Algorithm generatorAlgorithm = MazeGenerator.Algorithm.RandomTraversal;
-    private int cellSize = 5;
-    private int wallSize = 5;
+    public MazeGenerator.Algorithm generatorAlgorithm = MazeGenerator.Algorithm.RandomTraversal;
 
-    float wallHeight = 0.01f;
-    float floorHeight = 0f;
-
+    //Discoverables
     private MazeGenerator.Algorithm[] algorithms = new[]
     {
             MazeGenerator.Algorithm.None,
@@ -41,11 +45,80 @@ public class LabyrinthGenerator : UIBase
                 {MazeGenerator.Algorithm.RandomBreadthFirstTraversal, "Random breadth-first traversal"}
         };
 
-    private void Start() //was Awake()
+
+
+    void SetObjectToMazePosition(GameObject mazeObject, int xPos, float yPos, int zPos)
     {
+        TerrainData data = GameManager.Main.MainTerrain.terrainData;
+        float xPosReal = xPos * data.size.x / data.heightmapWidth;
+        float zPosReal = zPos * data.size.z / data.heightmapHeight;
+        mazeObject.transform.position = new Vector3(xPosReal, yPos, zPosReal);
+        mazeObject.name += "Maze Location - x: " + xPos + ", z:" + zPos;
+        mazeObject.name += "  Real Location - x: " + xPosReal + ", z:" + zPosReal;
+    }
+
+    private void PlaceDiscoverables()
+    {
+        TerrainData data = GameManager.Main.MainTerrain.terrainData;
+
+       /* for (int x = 0; x < heights.GetLength(0); x++)
+        {
+            for (int z = 0; z < heights.GetLength(1); z++)
+            {
+                if (heights[x, z] == floorHeight)
+                {
+                    GameObject o = Instantiate(MazeOccupants[1]);
+                    o.transform.localScale *= 20;
+                    SetObjectToMazePosition(o, z, 20, x); //WHY DOES THIS HAVE TO BE REVERSED WHO KNOWS???
+                }
+            }
+
+        }*/
+
+        foreach (GameObject mazeObject in MazeOccupants)
+        {
+            bool locationFound = false;
+            while (!locationFound)
+            {
+                int xLocCandidate = Random.Range(0, heights.GetLength(0)-1);
+                int zLocCandidate = Random.Range(0, heights.GetLength(1)-1);
+
+               // xLocCandidate = Mathf.Min(heights.GetLength(0)-1, xLocCandidate + xLocCandidate % 3);
+             //   zLocCandidate = Mathf.Min(heights.GetLength(1) - 1, zLocCandidate + zLocCandidate % 3);
+
+                if (heights[xLocCandidate, zLocCandidate] == floorHeight)
+                {
+                    bool wallsTooClose = false;
+
+                    for (int i = -1; i < 2; i++)
+                    {   
+                        for (int j = -1; j < 2; j++)
+                        {
+                            if (heights[xLocCandidate + i, zLocCandidate + j] != floorHeight)
+                                wallsTooClose = true;
+                        }
+                    }
+
+                    if (!wallsTooClose)
+                    {
+                        SetObjectToMazePosition(mazeObject, zLocCandidate, 2, xLocCandidate);  //WHY DOES THIS HAVE TO BE REVERSED?? WHO KNOWS???
+                        locationFound = true;
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void Start()
+    {
+        mapWidth = GameManager.Main.MainTerrain.terrainData.heightmapWidth;
+        mapHeight = GameManager.Main.MainTerrain.terrainData.heightmapHeight;
+
         var header = InstantiateControl<TextControl>(algorithmsGroup.transform.parent);
         header.Initialize("Generator algorithm");
         header.transform.SetAsFirstSibling();
+
         foreach (MazeGenerator.Algorithm algorithm in algorithms)
         {
             var toggle = InstantiateControl<ToggleControl>(algorithmsGroup.transform);
@@ -76,13 +149,14 @@ public class LabyrinthGenerator : UIBase
         generateButton.Initialize("Generate new maze", Generate);
 
         Generate();
+        
     }
 
     private void Generate()
     {
         StopAllCoroutines();
 
-        texture = new Texture2D(textureWidth, textureHeight, TextureFormat.ARGB32, false, true)
+        texture = new Texture2D(mapWidth, mapHeight, TextureFormat.ARGB32, false, true)
         {
             filterMode = FilterMode.Point
         };
@@ -90,13 +164,13 @@ public class LabyrinthGenerator : UIBase
         texture.Apply();
         mazeImage.texture = texture;
 
-        mazeGenerator = new MazeGenerator(textureWidth, textureHeight, cellSize, wallSize);
+        mazeGenerator = new MazeGenerator(mapWidth, mapHeight, cellSize, wallSize);
 
         StartCoroutine(GenerateCoroutine());
     }
 
 
-    float[,] heights;
+    
 
     private IEnumerator GenerateCoroutine()
     {
@@ -106,7 +180,7 @@ public class LabyrinthGenerator : UIBase
             algorithm = algorithms.GetRandom();
         }
 
-        heights = new float[513,513];//textureWidth * cellSize, textureHeight * cellSize
+        heights = new float[mapWidth,mapHeight];//textureWidth * cellSize, textureHeight * cellSize
         for (int i = 0; i < heights.GetLength(0); i++)
             for (int j = 0; j < heights.GetLength(1); j++)
                 heights[i, j] = wallHeight;
@@ -123,14 +197,19 @@ public class LabyrinthGenerator : UIBase
                 yield return StartCoroutine(mazeGenerator.RandomBreadthFirstTraversal(DrawEdge, texture.Apply));
                 break;
         }
+
+
         texture.Apply();
+        heights[0, 0] = 2;
+        heights[heights.GetLength(0)-1, heights.GetLength(1)-1] = -2;
         if (GameManager.Main != null && GameManager.Main.terrainModification != null)
             GameManager.Main.terrainModification.AdjustTerrainMap(heights);
+
+        PlaceDiscoverables();
     }
 
     private void DrawEdge(Edge edge)
     {
-        //Debug.Log("Drawing Edge: "+edge.origin.)
         int x, y, width, height;
         if (edge.origin.direction == Directions.Left || edge.origin.direction == Directions.Down)
         {

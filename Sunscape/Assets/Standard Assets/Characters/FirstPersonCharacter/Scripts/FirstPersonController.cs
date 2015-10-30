@@ -11,7 +11,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
     [RequireComponent(typeof (AudioSource))]
     public class FirstPersonController : MonoBehaviour
     {
-        public static Vector3 CameraRotationOffset;
+        //public static Vector3 CameraRotationOffset;
 
         [SerializeField] private bool m_IsWalking;
         [SerializeField] private float m_WalkSpeed;
@@ -48,7 +48,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Use this for initialization
         private void Start()
         {
-            CameraRotationOffset = Vector3.zero;
+            //CameraRotationOffset = Vector3.zero;
             m_CharacterController = GetComponent<CharacterController>();
             m_Camera = Camera.main;
             m_OriginalCameraPosition = m_Camera.transform.localPosition;
@@ -129,7 +129,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             {
                 m_MoveDir += GetComponent<Rigidbody>().useGravity? Physics.gravity*m_GravityMultiplier*Time.fixedDeltaTime: Vector3.zero;
             }
-            m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime);
+            m_CollisionFlags = m_CharacterController.Move(  m_MoveDir*Time.fixedDeltaTime);
 
             ProgressStepCycle(speed);
             UpdateCameraPosition(speed);
