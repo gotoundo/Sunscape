@@ -12,7 +12,7 @@ public class GGDroneScript : MonoBehaviour {
     float laserRange = 10;
     float stopRange = 6;
     float giveUpRange = 50f;
-    string banishmentLocation = "World-Labyrinth";
+    string banishmentLocation = "World-CubePrison";
 
 	void Start () {
         lineRender = GetComponent<LineRenderer>();

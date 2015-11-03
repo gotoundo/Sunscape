@@ -8,7 +8,7 @@ public class BasicObject : MonoBehaviour
     public float defaultSpin;
     public Rigidbody myRigidbody;
     public int InStasis;
-    bool startingGravityUsage;
+    public bool startingGravityUsage;
     public float maxIntegrity = 0;
     public float integrity;
     // Use this for initialization
@@ -32,7 +32,7 @@ public class BasicObject : MonoBehaviour
 
     void Update()
     {
-        if (defaultSpin != 0 && InStasis<=0)
+            if (defaultSpin != 0 && InStasis<=0)
             myRigidbody.angularVelocity += new Vector3(0, Time.deltaTime * defaultSpin, 0);
 
         if (InStasis > 0)

@@ -7,21 +7,25 @@ public class AdamPlayer : MonoBehaviour {
     public GameObject Reticule;
     public GameObject[] CreatedObjects;
     public Transform Facing;
+    public GameObject BodyObject;
     float sprayCooldownRemaining;
     float sprayCooldown = 0.1f;
     bool createEntrance = true;
     GameObject heldObject;
-    float grabRange = 4f;
+    float grabRange = 5f;
     float singlePullRange = 15f;
     float singlePushRange = 15f;
     float massPullRange = 20f;
     float massPushRange = 20f;
-    float letGoRange = 5f;
+    float letGoRange = 6f;
 
     public float Speed;
 
+
+
+
     //FirstPersonController fpController;
-    int layerMask = -1;
+    public int layerMask = -1;
 
     void Awake()
     {
@@ -31,11 +35,6 @@ public class AdamPlayer : MonoBehaviour {
         layerMask = ~layerMask;
         // This would cast rays only against colliders in layer 8, so we just inverse the mask.
 
-
-
-        //  fpController = GetComponent<FirstPersonController>();
-
-        //fpController.
     }
     // Update is called once per frame
     void Update()
@@ -48,6 +47,14 @@ public class AdamPlayer : MonoBehaviour {
     {
         if (heldObject != null)
         {
+            //heldObject.transform.position = Vector3.MoveTowards(heldObject.transform.position, Facing.position + Facing.forward * 3, 5 * Time.deltaTime);
+            
+           // heldObject.GetComponent<Rigidbody>().MovePosition(Facing.position + Facing.forward * 3);
+            heldObject.transform.position = (Facing.position + Facing.forward * 3);
+            heldObject.transform.LookAt(Facing);
+            //heldObject.transform.position = ;
+
+
             if (Vector3.Distance(heldObject.transform.position, transform.position) > letGoRange)
                 DropObject();
             else
@@ -89,7 +96,8 @@ public class AdamPlayer : MonoBehaviour {
         }
 
         //Force Push
-        if (Input.GetKeyDown(KeyCode.E))
+        //if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetMouseButtonDown(0))
         {
             DropObject();
             if (!Input.GetKey(KeyCode.LeftShift))
@@ -118,7 +126,8 @@ public class AdamPlayer : MonoBehaviour {
         }
 
         //Grab, Single Force Pull, and Mass Force Pull
-        if (Input.GetKeyDown(KeyCode.Q))
+        //if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetMouseButtonDown(1))
         {
             //Single Force Pull or Grab
             if (!Input.GetKey(KeyCode.LeftShift))
@@ -203,7 +212,7 @@ public class AdamPlayer : MonoBehaviour {
         }
 
         //Mouse Inputs
-        if (Input.GetMouseButton(0))
+       /* if (Input.GetMouseButton(0))
         {
             sprayCooldownRemaining -= Time.deltaTime;
             if (sprayCooldownRemaining <= 0)
@@ -230,7 +239,7 @@ public class AdamPlayer : MonoBehaviour {
                 }
             }
 
-        }
+        }*/
     }
 
     void RaiseLowerTerrain(float range, float altitudePerSecond)
@@ -269,7 +278,7 @@ public class AdamPlayer : MonoBehaviour {
             {
                 Rigidbody targetRigidbody = grabableObject.myRigidbody;
                 heldObject = targetRigidbody.gameObject;
-                targetRigidbody.transform.SetParent(Facing.transform);
+                //targetRigidbody.transform.SetParent(Facing.transform);
                 grabableObject.InStasis++;
             }
         }
@@ -279,7 +288,7 @@ public class AdamPlayer : MonoBehaviour {
     {
         if (heldObject != null)
         {
-            heldObject.transform.parent = null;
+          //  heldObject.transform.parent = null;
             heldObject.GetComponent<BasicObject>().InStasis--;
         }
         heldObject = null;

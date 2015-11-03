@@ -7,20 +7,22 @@ public class MazeMakerScript : MonoBehaviour
     public float cubeSpacing;
     GameObject[,,] CubeMatrix;
     IntVector[,,] PathMatrix;
+    bool debugColors = false;
 
     int MaxPos {  get { return sideLength - 1; } }
     
 
     //Physical Details
     public GameObject CubeTemplate;
-    float TimeBetweenDirectionChange = 10f;
-    float TimeRemaining = 1f;
+    public float TimeBetweenDirectionChange = 10f;
+    float TimeRemaining = 0f;
 
 
     void Start()
     {
         CreateCubes();
         CreatePath();
+        MakeExit();
     }
     
     // Update is called once per frame
@@ -32,6 +34,15 @@ public class MazeMakerScript : MonoBehaviour
             TimeRemaining = TimeBetweenDirectionChange;
             AssignNewVelocities();
         }
+    }
+
+    void MakeExit()
+    {
+        //set exit cube
+        GameObject ExitCube = CubeMatrix[Random.Range(0, sideLength - 1), Random.Range(0, sideLength - 1), Random.Range(0, sideLength - 1)];
+        ExitCube.GetComponent<PrisonCube>().ExitCube = true;
+        ExitCube.GetComponent<MeshRenderer>().material.color = Color.white;
+        ExitCube.name = "EXIT CUBE";
     }
 
     void CreateCubes()
@@ -105,15 +116,15 @@ public class MazeMakerScript : MonoBehaviour
                     PathMatrix[currentPosition.x, currentPosition.y, currentPosition.z] = currentPosition * -1;
                     return; //linkup the start and finish and quit
                 }
-                
-                Vector3 yRotate = Quaternion.Euler(0, spirallingOut? 90:-90, 0) * right.ToVector3();
+
+                Vector3 yRotate = Quaternion.Euler(0, spirallingOut ? 90 : -90, 0) * right.ToVector3();
                 right = new IntVector(yRotate);
 
                 if (turnsMade == 10) // a bunch of shitty hacks
                 {
                     basicColor = Color.blue;
                     capColor = Color.green;
-                    right = new IntVector(0, 0, 1); 
+                    right = new IntVector(0, 0, 1);
                     direction = new IntVector(-1, 0, 0);
                     spiralOutJustHappened = true;
                     spirallingOut = true;
@@ -130,8 +141,9 @@ public class MazeMakerScript : MonoBehaviour
                 Debug.Log(string.Format("Direction: {0},{1},{2}", direction.x, direction.y, direction.z));
                 Debug.Log(string.Format("Next Capstone at: {0},{1},{2}", SheetEndPosition.x, SheetEndPosition.y, SheetEndPosition.z));
                 GetCubeAtPoint(currentPosition).name += " Capstone ";
-                GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = Color.black;
-               
+                if (debugColors)
+                    GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = Color.black;
+
                 turnsMade++;
             }
 
@@ -142,13 +154,15 @@ public class MazeMakerScript : MonoBehaviour
                 {
                     positiveYDirection = !positiveYDirection; //move over a column
                     direction = right;
-                    GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = capColor;
+                    if (debugColors)
+                        GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = capColor;
                     invertedYLastTime = true;
                 }
                 else
                 {//move up or down the column
                     direction = positiveYDirection ? up : down;
-                    GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = basicColor;
+                    if (debugColors)
+                        GetCubeAtPoint(currentPosition).GetComponent<MeshRenderer>().material.color = basicColor;
                     invertedYLastTime = false;
                 }
             }
@@ -159,11 +173,15 @@ public class MazeMakerScript : MonoBehaviour
           //  GetCubeAtPoint(currentPosition).name += " Plane " + turnsMade;
             currentPosition += direction;
 
-          //  if (SheetEndPosition.x > CubeMatrix.GetLength(0) || SheetEndPosition.y > CubeMatrix.GetLength(1) || SheetEndPosition.z > CubeMatrix.GetLength(2))
-          //      Debug.Log("accessing shit dimension");
-            GetCubeAtPoint(SheetEndPosition).GetComponent<MeshRenderer>().material.color = Color.cyan;
+            //  if (SheetEndPosition.x > CubeMatrix.GetLength(0) || SheetEndPosition.y > CubeMatrix.GetLength(1) || SheetEndPosition.z > CubeMatrix.GetLength(2))
+            //      Debug.Log("accessing shit dimension");
+            if (debugColors)
+                GetCubeAtPoint(SheetEndPosition).GetComponent<MeshRenderer>().material.color = Color.cyan;
             // System.Threading.Thread.Sleep(100);
         }
+
+        
+
     }
 
     IEnumerator Example()

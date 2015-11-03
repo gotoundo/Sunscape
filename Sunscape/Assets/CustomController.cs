@@ -12,9 +12,18 @@ public class CustomController : MonoBehaviour {
     public bool m_Jumping;
     public bool m_Jump;
     public bool m_PreviouslyGrounded;
+    public bool m_Grounded;
+
+    int exludePlayerLevelMask;
+    float velocityCap = 10;
+
+    public Vector3 velocity;
+    public float velocityMagnitude;
+
     // Use this for initialization
     void Start () {
-        //m_CharacterController = GetComponent<CharacterController>();
+        exludePlayerLevelMask = ~(1 << 10);
+
         m_Jumping = false;
         myBody = GetComponent<Rigidbody>();
         myCamera = GameManager.Main.MainCamera;
@@ -22,51 +31,74 @@ public class CustomController : MonoBehaviour {
         m_MouseLook.Init(transform, GameManager.Main.MainCamera.transform);
 
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    bool hovering = true;
+    float hoverHeight = 4f;
+
+
+    public float HeightAboveGround()
+    {
+        RaycastHit hit;
+        float heightAboveGround = 100;
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity,exludePlayerLevelMask))
+        {
+            heightAboveGround = hit.distance;
+        }
+        return heightAboveGround;
+    }
+
+    // Update is called once per frame
+    void Update () {
+        velocity = myBody.velocity;
+        velocityMagnitude = myBody.velocity.magnitude >0.01? myBody.velocity.magnitude:0;
+        if (velocityMagnitude < 0.3)
+            velocity = Vector3.zero;
+        
         RotateView();
+        m_Grounded = HeightAboveGround() < 2;
+
+        if(hovering)
+        {
+          //  myBody.position += new Vector3(0, hoverHeight - HeightAboveGround(), 0);
+            /*
+            if (HeightAboveGround() < hoverHeight)
+            {
+                myBody.useGravity = false;
+                myBody.position += new Vector3(0, hoverHeight - HeightAboveGround(), 0);
+            }
+            else if(HeightAboveGround() > hoverHeight * 2)
+            {
+                myBody.useGravity = true;
+            }*/
+        }
+
+
+
+
         if (!m_Jump)
         {
             m_Jump = Input.GetKey(KeyCode.Space);
         }
 
         //Just landed
-        if (!m_PreviouslyGrounded)//&&m_CharacterController.isGrounded
+        if (!m_PreviouslyGrounded && m_Grounded)
         {
-           // StartCoroutine(m_JumpBob.DoBobCycle());
-           // PlayLandingSound();
-            //m_MoveDir.y = 0f;
             m_Jumping = false;
         }
 
-        //Falling without having jumped first
-        if ( !m_Jumping && m_PreviouslyGrounded) //!m_CharacterController.isGrounded &&
+        m_PreviouslyGrounded = m_Grounded;
+        if (m_Grounded)
         {
-            //m_MoveDir.y = 0f;
-        }
-
-      //  m_PreviouslyGrounded = m_CharacterController.isGrounded;
-
-
-       // if (m_CharacterController.isGrounded)
-       // {
-            //m_MoveDir.y = -m_StickToGroundForce;
-
             if (m_Jump)
             {
-                //m_MoveDir.y = m_JumpSpeed;
-                //PlayJumpSound();
                 Debug.Log("Jump!");
                 myBody.AddForce(0, 100, 0);
                 m_Jump = false;
                 m_Jumping = true;
             }
-       // }
+        }
 
 
-
-        
 
         if (Input.GetKey(KeyCode.A))
             myBody.AddForce((myCamera.transform.rotation * Vector3.left) * Time.deltaTime * speed);
@@ -89,6 +121,8 @@ public class CustomController : MonoBehaviour {
 
     void RotateView()
     {
+
+        //transform.rotation = myCamera.transform.rotation;
         m_MouseLook.LookRotation(transform, GameManager.Main.MainCamera.transform);
     }
 }
